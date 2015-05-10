@@ -68,6 +68,67 @@ So the maximum number of steps was on average taken around **8:35** in the morni
 
 ## Imputing missing values
 
+First find the amount of missing values:
+```{r missing_vals}
+sum(is.na(activity$steps))
+```
 
+We can also determine the proportion of missing values using
+```{r missing_vals_proportion}
+sum(is.na(activity$steps))/length(activity$steps)
+```
+
+Replacing the missing values in the original dataset by a mean for a given time interval. Note that the mean is rounded, as number of steps should be always integer.
+```{r replace_missing}
+activity_noNA<-activity
+for(i in 1:length(activity_noNA$steps)){
+      if(is.na(activity_noNA$steps[i])){
+            int<-activity_noNA$interval[i]
+            id<-which(avg_steps_interval$interval==int)
+            activity_noNA$steps[i]<-round(avg_steps_interval[[id,2]]) 
+      }
+}
+sum(is.na(activity_noNA$steps))
+```
+Now repeating the steps from first part. First grouping by day and making numeric vector with totals:
+```{r group_new}
+activity_by_date_noNA<-group_by(activity_noNA,date)
+total_steps_noNA<-summarise(activity_by_date_noNA,sum(steps))
+steps_per_day_noNA<-total_steps_noNA[[2]]
+```
+And now the histogram:
+```{r make_histogram_noNA,fig.height=4,fig.path="figure/",}
+hist(steps_per_day_noNA,xlab="Total number of steps per day",main="Distribution after imputing missing values",col = "red")
+```
+
+Now calculate the mean and median:
+```{r mean_total_steps_noNA}
+mean(steps_per_day_noNA)
+median(steps_per_day_noNA)
+```
+
+These values **differ** from the ones reported in the first part of this assignment. The reason is that NA's are not uniformly distributed (some intervals have more NA's than others). Therefore, after replacing NA's by averages for a given interval, their relative weight is increased as NA's were skipped before. Because there were more missing NA's during the night, where fewer steps were taken, the overall mean and median went down.
 
 ## Are there differences in activity patterns between weekdays and weekends?
+
+First add variable that distinguishes between weekday and weekend. It will be called DayType and obtained using the $wday function that returns numeric value of the day of the week. Sunday is first, corresponding to 0 and Saturday corresponds to 6. 
+```{r weekday_vs_weekend}
+activity_noNA$DayType<-ifelse(as.POSIXlt(activity_noNA$date)$wday==0 | as.POSIXlt(activity_noNA$date)$wday==6,"weekend","weekday" )
+```
+Then make this variable a factor:
+```{r make_factor}
+activity_noNA<-transform(activity_noNA,DayType= factor(DayType))
+```
+Group by daytype and calculate mean for every interval separately for weekdays and weekends
+```{r mean_week_weekend}
+activity_by_interval2<-group_by(activity_noNA,DayType,interval)
+avg_steps_interval2<-summarise(activity_by_interval2,steps=mean(steps))
+```
+Finally, the plot:
+```{r weekday_weekend_plot,fig.height=8,fig.width=10,fig.path="figure/"}
+library(lattice)
+xyplot(steps~interval | DayType, data=avg_steps_interval2,type = "l",layout = c(1, 2),ylab="average number of steps",
+      main="Average number of steps in a 5 minute interval over the observed period for weekends and weekdays",
+      xlab="Time during the day")
+```
+The average number of steps indeed differs between weekdays and weekends. There is much higher amount of average steps in the morning during the weekdays (probably going to work), but the overall activity afterwards is smaller in weekdays than in weekends, indicating that subject might spend weekdays in the office, while he is more active during weekends.
