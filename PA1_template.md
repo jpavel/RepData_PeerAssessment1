@@ -71,6 +71,7 @@ median(steps_per_day[!is.na(steps_per_day)])
 ## [1] 10765
 ```
 
+The mean number of steps taken every day is **10766.19** and the median is **10765**.
 
 ## What is the average daily activity pattern?
 
@@ -132,9 +133,9 @@ Replacing the missing values in the original dataset by a mean for a given time 
 activity_noNA<-activity
 for(i in 1:length(activity_noNA$steps)){
       if(is.na(activity_noNA$steps[i])){
-            int<-activity_noNA$interval[i]
-            id<-which(avg_steps_interval$interval==int)
-            activity_noNA$steps[i]<-round(avg_steps_interval[[id,2]]) 
+            int<-activity_noNA$interval[i] # get the interval
+            id<-which(avg_steps_interval$interval==int) # find on which row is stored average amount of steps
+            activity_noNA$steps[i]<-round(avg_steps_interval[[id,2]])# replace the NA by the rounded mean
       }
 }
 sum(is.na(activity_noNA$steps))

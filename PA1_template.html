@@ -97,6 +97,7 @@ total_steps&lt;-summarise(activity_by_date,sum(steps))</code></pre>
 <pre><code>## [1] 10766.19</code></pre>
 <pre class="r"><code>median(steps_per_day[!is.na(steps_per_day)])</code></pre>
 <pre><code>## [1] 10765</code></pre>
+<p>The mean number of steps taken every day is <strong>10766.19</strong> and the median is <strong>10765</strong>.</p>
 </div>
 <div id="what-is-the-average-daily-activity-pattern" class="section level2">
 <h2>What is the average daily activity pattern?</h2>
@@ -126,9 +127,9 @@ avg_steps_interval$interval[row_id] # get the interval</code></pre>
 <pre class="r"><code>activity_noNA&lt;-activity
 for(i in 1:length(activity_noNA$steps)){
       if(is.na(activity_noNA$steps[i])){
-            int&lt;-activity_noNA$interval[i]
-            id&lt;-which(avg_steps_interval$interval==int)
-            activity_noNA$steps[i]&lt;-round(avg_steps_interval[[id,2]]) 
+            int&lt;-activity_noNA$interval[i] # get the interval
+            id&lt;-which(avg_steps_interval$interval==int) # find on which row is stored average amount of steps
+            activity_noNA$steps[i]&lt;-round(avg_steps_interval[[id,2]])# replace the NA by the rounded mean
       }
 }
 sum(is.na(activity_noNA$steps))</code></pre>
