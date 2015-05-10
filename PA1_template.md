@@ -74,7 +74,35 @@ median(steps_per_day[!is.na(steps_per_day)])
 
 ## What is the average daily activity pattern?
 
+Average the intervals over all days (and exclude the missing values from averaging):
 
+```r
+activity_by_interval<-group_by(activity,interval) #group by interval
+avg_steps_interval<-summarise(activity_by_interval,mean(steps[!is.na(steps)]))
+```
+
+Make a time series plot of average steps taken in a given interval during day. Note that the times are shown without separation between hours and minutes and are in 24h format (e.g. 500 is 5am and 1500 is 3pm).
+
+
+```r
+ plot(avg_steps_interval,type="l",ylab="average number of steps",
+      main="Average number of steps in an interval over the observed period",
+      xlab="Time during the day")
+```
+
+![](figure/make_time_avg-1.png) 
+
+Finding which interval contains on average the highest number of steps:
+
+```r
+row_id<-which.max(avg_steps_interval[[2]]) # find on which line there is maximum
+avg_steps_interval$interval[row_id] # get the interval
+```
+
+```
+## [1] 835
+```
+So the maximum number of steps was on average taken around **8:35** in the morning
 
 ## Imputing missing values
 
